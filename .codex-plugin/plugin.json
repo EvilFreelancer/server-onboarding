@@ -1,0 +1,32 @@
+{
+  "name": "server-onboarding",
+  "version": "0.1.0",
+  "description": "Onboard a server into a fleet harness repository: reach it over ssh with a confirmed host key, discover it read-only with server-discovery, place it in a namespace, write the host card and README, mirror its compose stacks and system configs, add it to the namespace Topology, regenerate the index, and hand a box with an incomplete GPU stack to gpu-server-setup once the user agrees.",
+  "author": {
+    "name": "Pavel Rykov",
+    "email": "paul@drteam.rocks",
+    "url": "https://t.me/evilfreelancer"
+  },
+  "homepage": "https://github.com/EvilFreelancer/server-onboarding",
+  "repository": "https://github.com/EvilFreelancer/server-onboarding",
+  "license": "MIT",
+  "keywords": [
+    "devops",
+    "infrastructure-as-code",
+    "onboarding",
+    "server-inventory",
+    "ssh",
+    "host-card",
+    "docker-compose",
+    "topology",
+    "gpu"
+  ],
+  "skills": "./",
+  "interface": {
+    "displayName": "server-onboarding",
+    "shortDescription": "Add a server to a fleet harness: discovery, placement, host card, mirrored configs, Topology, index, GPU hand-off.",
+    "developerName": "Pavel Rykov",
+    "category": "Developer Tools",
+    "websiteURL": "https://github.com/EvilFreelancer/server-onboarding"
+  }
+}
