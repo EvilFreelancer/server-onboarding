@@ -10,7 +10,7 @@ description: >
   server, to finish a pending host, or to "add it to the index". Re-scanning a host
   that already has a card is the server-discovery skill.
 metadata:
-  version: 0.1.0
+  version: 0.2.0
   author: Pavel Rykov <paul@drteam.rocks>
   homepage: https://github.com/EvilFreelancer/server-onboarding
   triggers: >
@@ -185,6 +185,30 @@ next to its compose file; `.env` and every config that holds a secret become `*.
 with the values replaced by placeholders and described. Data, model weights, caches and
 logs are not mirrored.
 
+**Vendor telemetry.** While the stacks are read, check whether any of them reports to its
+vendor: vLLM usage statistics, Infinity and Chroma analytics, the Gradio and OpenWebUI
+calls, Ray usage stats. The switch of each component and what it stops are in
+[telemetry.md](../gpu-server-setup/references/telemetry.md) of the `gpu-server-setup`
+skill. Read-only, printing only the switch names, never the whole environment:
+
+```bash
+ssh -o BatchMode=yes <target> 'for c in $(docker ps --format "{{.Names}}"); do
+  echo "$c $(docker inspect --format "{{.Config.Image}}" "$c")"
+  docker inspect --format "{{range .Config.Env}}{{println .}}{{end}}" "$c" \
+    | grep -E "^(VLLM_NO_USAGE_STATS|(VLLM_)?DO_NOT_TRACK|HF_HUB_DISABLE_TELEMETRY|INFINITY_ANONYMOUS_USAGE_STATS|SCARF_NO_ANALYTICS|ANONYMIZED_TELEMETRY|ENABLE_VERSION_UPDATE_CHECK|GRADIO_ANALYTICS_ENABLED|RAY_USAGE_STATS_ENABLED)=" | sed "s/^/  /"
+  docker exec "$c" ls /root/.config/vllm/usage_stats.json 2>/dev/null | sed "s/^/  has reported: /"
+done'
+```
+
+A vLLM engine without `VLLM_NO_USAGE_STATS=1` or `DO_NOT_TRACK=1` (the value `1`, `true`
+does not silence vLLM), a `usage_stats.json` in its container, an Infinity without
+`INFINITY_ANONYMOUS_USAGE_STATS=0` or `DO_NOT_TRACK=1`, an OpenWebUI without
+`ENABLE_VERSION_UPDATE_CHECK=false`: each goes into the stack section of the README and
+into the final report. On the host, `popularity-contest` with `PARTICIPATE="yes"`,
+`whoopsie` and `ubuntu-report`, and on Ubuntu `ENABLED=1` in `/etc/default/motd-news` and
+`apt_news` in `pro config show`, go there too. Switching any of it off changes the box:
+ask, unless the rules of the harness already order it.
+
 ### 6. Topology
 
 Add the host to `## Topology` of the namespace README: inside the right `subgraph`,
@@ -202,7 +226,8 @@ ssh -o BatchMode=yes <target> hostname
 
 The second command must print the first entry of `hostname`. Set `status: active` when
 no required key is `null` any more, otherwise leave `pending` and list the gaps in the
-final report together with what was written and the notes of step 2.
+final report together with what was written, the notes of step 2 and the vendor telemetry
+found in step 5.
 
 ## GPU hand-off
 
@@ -225,7 +250,8 @@ still document the box as it is; then:
    gone.
 4. Mirror what the setup put on the box (`/etc/docker/daemon.json`, the power cap unit,
    each serving stack) as step 5 says, and write the driver branch, the power cap and the
-   stacks into the README body.
+   stacks into the README body. Every stack the setup brought up carries its telemetry
+   switches; check them as step 5 says.
 5. Run step 7 again.
 
 A firewall or DNAT change on a gateway is a change on the gateway host, handled through
@@ -247,4 +273,6 @@ stacks, the Topology, the GPU hand-off and `status`.
   a compose project instead of reading `docker compose ls`;
 - writing a password into the card while `password_in_card` is off;
 - `StrictHostKeyChecking=no` to get past an unknown host key;
-- drawing a Topology edge nobody can point to in the probe output.
+- drawing a Topology edge nobody can point to in the probe output;
+- mirroring a stack without noting that it still reports to its vendor, or printing the
+  whole environment of a container to find out (it carries keys).

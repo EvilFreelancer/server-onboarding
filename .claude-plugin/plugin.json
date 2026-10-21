@@ -1,7 +1,7 @@
 {
   "name": "server-onboarding",
   "description": "Onboard a server into a fleet harness repository: reach it over ssh with a confirmed host key, discover it read-only with server-discovery, place it in a namespace, write the host card and README, mirror its compose stacks and system configs, add it to the namespace Topology, regenerate the index, and hand a box with an incomplete GPU stack to gpu-server-setup once the user agrees.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "Pavel Rykov",
     "email": "paul@drteam.rocks",
